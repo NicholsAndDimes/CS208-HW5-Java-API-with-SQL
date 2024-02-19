@@ -27,7 +27,13 @@ public class StudentsController
      * @return a list of students (extracted from the students table in the database) as JSON
      */
     // TODO: implement this route
+    @GetMapping(value = "/students", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<Student> index()
+    {
+        List<Student> listOfStudents = Main.database.listAllStudents();
 
+        return listOfStudents;
+    }
 
 
     /**

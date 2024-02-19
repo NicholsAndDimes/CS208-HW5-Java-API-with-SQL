@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class Database
 {
     private final String sqliteFileName;
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     public Database(String sqliteFileName)
     {
@@ -140,6 +142,52 @@ public class Database
         }
 
         return listOfClasses;
+    }
+
+    public List<Student> listAllStudents()
+    {
+        String sql =
+                "SELECT id, first_name, last_name, birth_date\n" +
+                "FROM students;";
+
+        ArrayList<Student> listOfStudents = new ArrayList<>();
+        try
+                (
+                        Connection connection = getDatabaseConnection();
+                        Statement sqlStatement = connection.createStatement();
+                        ResultSet resultSet = sqlStatement.executeQuery(sql);
+                )
+        {
+            //print table header
+            printTableHeader(new String[]{"id", "first_name", "last_name", "birth_date"});
+
+            // resultSet.next() either
+            // advances to the next returned record (row)
+            // or
+            // returns false if there are no more records
+            while (resultSet.next())
+            {
+                // extract the values from the current row
+                int id = resultSet.getInt("id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String birthDate = resultSet.getString("birth_date");
+//                Date birthDate = resultSet.getDate("birth_date");
+
+                // print the results of the current row
+                System.out.printf("| %d | %s | %s | %s |%n", id, firstName, lastName, birthDate);
+
+                Student studentForCurrentRow = new Student(id, firstName, lastName, Date.valueOf(birthDate));
+                listOfStudents.add(studentForCurrentRow);
+            }
+        }
+        catch (SQLException sqlException)
+        {
+            System.out.println("!!! SQLException: failed to query the students table. Make sure you executed the schema.sql and seeds.sql scripts");
+            System.out.println(sqlException.getMessage());
+        }
+
+        return listOfStudents;
     }
 
     public Class addNewClass(Class newClass) throws SQLException
@@ -262,47 +310,6 @@ public class Database
             throw sqlException;
         }
     }
-
-    public List<Student> listAllStudents()
-    {
-        String sql =
-                "SELECT id, first_name, last_name, birth_date\n" +
-                "FROM students;";
-
-        ArrayList<Student> listOfStudents = new ArrayList<>();
-        try
-        (
-            Connection connection = getDatabaseConnection();
-            Statement sqlStatement = connection.createStatement();
-            ResultSet resultSet = sqlStatement.executeQuery(sql);
-        )
-        {
-            printTableHeader(new String[]{"id", "first_name", "last_name", "birth_date"});
-
-            while (resultSet.next())
-            {
-                int id = resultSet.getInt("id");
-                String firstName = resultSet.getString("first_name");
-                String lastName = resultSet.getString("last_name");
-
-                // the resultSet.getDate() does not work in this case, so we're using the getString() method instead
-                String birthDate = resultSet.getString("birth_date");
-
-                System.out.printf("| %d | %s | %s | %s |%n", id, firstName, lastName, birthDate);
-
-                Student studentForCurrentRow = new Student(id, firstName, lastName, Date.valueOf(birthDate));
-                listOfStudents.add(studentForCurrentRow);
-            }
-        }
-        catch (SQLException sqlException)
-        {
-            System.out.println("!!! SQLException: failed to query the students table. Make sure you executed the schema.sql and seeds.sql scripts");
-            System.out.println(sqlException.getMessage());
-        }
-
-        return listOfStudents;
-    }
-
 
     public ArrayList<RegisteredStudentJoinResult> listAllRegisteredStudents()
     {
