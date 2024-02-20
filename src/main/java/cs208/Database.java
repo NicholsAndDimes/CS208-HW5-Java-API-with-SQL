@@ -324,6 +324,44 @@ public class Database
         }
     }
 
+    public void updateExistingStudentInformation(Student studentToUpdate) throws SQLException
+    {
+        String sql =
+                "UPDATE students\n" +
+                "SET first_name = ?, last_name = ?, birth_date = ?\n" +
+                "WHERE id = ?;";
+
+        try
+                (
+                        Connection connection = getDatabaseConnection();
+                        PreparedStatement sqlStatement = connection.prepareStatement(sql);
+                )
+        {
+            sqlStatement.setString(1, studentToUpdate.getFirstName());
+            sqlStatement.setString(2, studentToUpdate.getLastName());
+            sqlStatement.setString(3, studentToUpdate.getBirthDate().toString());
+            sqlStatement.setInt(4, studentToUpdate.getId());
+
+            int numberOfRowsAffected = sqlStatement.executeUpdate();
+            System.out.println("numberOfRowsAffected = " + numberOfRowsAffected);
+
+            if (numberOfRowsAffected > 0)
+            {
+                System.out.println("SUCCESSFULLY updated the student with id = " + studentToUpdate.getId());
+            }
+            else
+            {
+                System.out.println("!!! WARNING: failed to update the student with id = " + studentToUpdate.getId());
+            }
+        }
+        catch (SQLException sqlException)
+        {
+            System.out.println("!!! SQLException: failed to update the student with id = " + studentToUpdate.getId());
+            System.out.println(sqlException.getMessage());
+            throw sqlException;
+        }
+    }
+
     public void deleteExistingClass(int idOfClassToDelete) throws SQLException
     {
         String sql =
@@ -446,13 +484,11 @@ public class Database
     }
     public Student getStudentWithId(int id)
     {
-        System.out.printf("starting with %d\n", id);
         String sql =
                 "SELECT id, first_name, last_name, birth_date\n" +
                 "FROM students\n" +
                 "WHERE id = ?;";
 
-        System.out.printf("step 1 with %d\n", id);
         try
                 (
                         Connection connection = getDatabaseConnection();
