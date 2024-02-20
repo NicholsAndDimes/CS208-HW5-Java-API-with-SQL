@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.List;
 
 
@@ -78,6 +79,49 @@ public class StudentsController
      * @return the created student (which was inserted into the database), as JSON
      */
     // TODO: implement this route
+    @PostMapping("/students")
+    Student create(
+            @RequestParam("first_name") String firstName,
+            @RequestParam("last_name") String lastName,
+            @RequestParam("birth_date") Date birthDate
+    )
+    {
+        System.out.println("first_name = " + firstName);
+        System.out.println("last_name  = " + lastName);
+        System.out.println("birth_date = " + birthDate.toString());
+
+        // we can perform additional validation on the parameters, for example:
+        if (firstName.length() > 30)
+        {
+            System.out.println("Detected a first name length greater than 30 characters. Throwing an error...");
+            throw new ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                    "student first name should be less than 30 characters"
+            );
+        }
+        if (lastName.length() > 50)
+        {
+            System.out.println("Detected a last name length greater than 50 characters. Throwing an error...");
+            throw new ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                    "student last name should be less than 50 characters"
+            );
+        }
+
+        try
+        {
+            Student createdStudent = new Student(firstName, lastName, birthDate);
+            Main.database.addNewStudent(createdStudent);
+            return createdStudent;
+        }
+        catch (SQLException e)
+        {
+            throw new ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                    "failed to add new student to the database"
+            );
+        }
+    }
 
 
 
