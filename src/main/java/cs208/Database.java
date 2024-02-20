@@ -471,7 +471,7 @@ public class Database
         return listOfRegisteredStudentJoinResults;
     }
 
-    public ArrayList<RegisteredStudentJoinResult> registerStudent(int student_id, int class_id)
+    public void registerStudent(int student_id, int class_id)
     {
         String sql =
                 "INSERT INTO registered_students(student_id, class_id)\n" +
@@ -482,7 +482,6 @@ public class Database
                 "FROM classes\n" +
                 "WHERE id = ?);";
 
-        ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = new ArrayList<>();
         try
         (
             Connection connection = getDatabaseConnection();
@@ -499,7 +498,6 @@ public class Database
             {
                 System.out.println("SUCCESSFULLY enrolled the student with id = " + student_id);
                 System.out.println("into class with id = " + class_id);
-
             }
             else
             {
@@ -512,10 +510,47 @@ public class Database
             System.out.println("!!! SQLException: failed to query the registered_students table. Make sure you executed the schema.sql and seeds.sql scripts");
             System.out.println(sqlException.getMessage());
         }
+    }
+
+    public ArrayList<RegisteredStudentJoinResult> dropStudent(int student_id, int class_id) throws SQLException
+    {
+        String sql =
+                "DELETE FROM registered_students\n" +
+                "WHERE student_id = ? AND class_id = ?;";
+
+        ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = new ArrayList<>();
+        try
+                (
+                        Connection connection = getDatabaseConnection();
+                        PreparedStatement sqlStatement = connection.prepareStatement(sql);
+                )
+        {
+            sqlStatement.setInt(1, student_id);
+            sqlStatement.setInt(2, class_id);
+
+            int numberOfRowsAffected = sqlStatement.executeUpdate();
+            System.out.println("numberOfRowsAffected = " + numberOfRowsAffected);
+
+            if (numberOfRowsAffected > 0)
+            {
+                System.out.println("SUCCESSFULLY dropped the student with id = " + student_id);
+                System.out.println("from class with id = " + class_id);
+
+            }
+            else
+            {
+                System.out.println("!!! WARNING: failed to drop the student with id = " + student_id);
+                System.out.println("from class with id = " + class_id);
+            }
+        }
+        catch (SQLException sqlException)
+        {
+            System.out.println("!!! SQLException: failed to query the registered_students table. Make sure you executed the schema.sql and seeds.sql scripts");
+            System.out.println(sqlException.getMessage());
+        }
 
         return listOfRegisteredStudentJoinResults;
     }
-
     public Class getClassWithId(int id)
     {
         String sql =

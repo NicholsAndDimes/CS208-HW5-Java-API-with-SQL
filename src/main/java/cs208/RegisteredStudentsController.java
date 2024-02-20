@@ -43,15 +43,26 @@ public class RegisteredStudentsController
      * into the registered_students table in the database.
      */
     // TODO: implement this route
-   @PostMapping(value = "add_student_to_class")
-   ArrayList<RegisteredStudentJoinResult> registerStudent(
-           @RequestParam("studentId") int studentId,
-           @RequestParam("classId") int classId
+    @PostMapping(value = "/add_student_to_class")
+    void registerStudent(
+        @RequestParam("studentId") int studentId,
+        @RequestParam("classId") int classId
     )
     {
-        ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = Main.database.registerStudent(studentId, classId);
-        
-        return listOfRegisteredStudentJoinResults;
+        Student studentToEnroll = Main.database.getStudentWithId(studentId);
+        if (studentToEnroll == null) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "failed to enroll the student with id = " + studentId + " in the database because it does not exist"
+            );
+        }
+        Class classToEnroll = Main.database.getClassWithId(classId);
+        if (classToEnroll == null) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "failed to enroll the class with id = " + classId + " in the database because it does not exist"
+            );
+        }
     }
 
     
@@ -68,8 +79,40 @@ public class RegisteredStudentsController
      * @throws ResponseStatusException: a 404 status code if the class with id = {classId} does not exist
      */
     // TODO: implement this route
-
-
+    @DeleteMapping(value = "/drop_student_from_class")
+    void dropStudent(
+        @RequestParam("studentId") int studentId,
+        @RequestParam("classId") int classId
+    )
+    {
+        System.out.println("studentId = " + studentId);
+        System.out.println("classId = " + classId);
+        
+        try{
+            Student studentToEnroll = Main.database.getStudentWithId(studentId);
+            if (studentToEnroll == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "failed to drop the student with id = " + studentId + " in the database because it does not exist"
+                );
+            }
+            Class classToEnroll = Main.database.getClassWithId(classId);
+            if (classToEnroll == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "failed to drop the class with id = " + classId + " in the database because it does not exist"
+                );
+            }
+            Main.database.dropStudent(studentId, classId);
+        }
+        catch (SQLException e)
+        {
+            throw new ResponseStatusException(
+                HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                "failed to drop the student with id = " + studentId + " and class id = " + classId + " from the database"
+            );
+        }
+    }
 
     /**
      * GET /students_taking_class/{classCode}

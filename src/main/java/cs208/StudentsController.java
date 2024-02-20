@@ -81,9 +81,9 @@ public class StudentsController
     // TODO: implement this route
     @PostMapping("/students")
     Student create(
-            @RequestParam("first_name") String firstName,
-            @RequestParam("last_name") String lastName,
-            @RequestParam("birth_date") Date birthDate
+        @RequestParam("first_name") String firstName,
+        @RequestParam("last_name") String lastName,
+        @RequestParam("birth_date") Date birthDate
     )
     {
         System.out.println("first_name = " + firstName);
@@ -95,16 +95,16 @@ public class StudentsController
         {
             System.out.println("Detected a first name length greater than 30 characters. Throwing an error...");
             throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
-                    "student first name should be less than 30 characters"
+                HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                "student first name should be less than 30 characters"
             );
         }
         if (lastName.length() > 50)
         {
             System.out.println("Detected a last name length greater than 50 characters. Throwing an error...");
             throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
-                    "student last name should be less than 50 characters"
+                HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                "student last name should be less than 50 characters"
             );
         }
 
@@ -117,8 +117,8 @@ public class StudentsController
         catch (SQLException e)
         {
             throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
-                    "failed to add new student to the database"
+                HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
+                "failed to add new student to the database"
             );
         }
     }
@@ -156,7 +156,6 @@ public class StudentsController
         try
         {
             Student studentToUpdate = Main.database.getStudentWithId(id);
-            System.out.println("1");
             if (studentToUpdate == null)
             {
                 throw new ResponseStatusException(
@@ -170,9 +169,7 @@ public class StudentsController
             studentToUpdate.setLastName(lastName);
             studentToUpdate.setBirthDate(birthDate);
 
-            System.out.println("2");
             Main.database.updateExistingStudentInformation(studentToUpdate);
-            System.out.println("3");
             return studentToUpdate;
         }
         catch (SQLException e)
