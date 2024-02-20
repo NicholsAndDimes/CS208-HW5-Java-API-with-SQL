@@ -471,13 +471,46 @@ public class Database
         return listOfRegisteredStudentJoinResults;
     }
 
+    public ArrayList<RegisteredStudentJoinResult> registerStudent()
+    {
+        String sql =
+                "SELECT students.id, students.first_name || ' ' || students.last_name AS student_full_name, classes.code, classes.title\n" +
+                        "FROM students\n" +
+                        "INNER JOIN registered_students ON students.id = registered_students.student_id\n" +
+                        "INNER JOIN classes ON classes.id = registered_students.class_id\n" +
+                        "ORDER BY students.last_name, students.first_name, classes.code;";
 
+        ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = new ArrayList<>();
+        try
+                (
+                        Connection connection = getDatabaseConnection();
+                        Statement sqlStatement = connection.createStatement();
+                        ResultSet resultSet = sqlStatement.executeQuery(sql);
+                )
+        {
+            printTableHeader(new String[]{"students.id", "student_full_name", "classes.code", "classes.title"});
 
+            while (resultSet.next())
+            {
+                int studentId = resultSet.getInt("id");
+                String studentFullName = resultSet.getString("student_full_name");
+                String code = resultSet.getString("code");
+                String title = resultSet.getString("title");
 
+                System.out.printf("| %d | %s | %s | %s |%n", studentId, studentFullName, code, title);
 
+                RegisteredStudentJoinResult registeredStudentJoinResultForCurrentRow = new RegisteredStudentJoinResult(studentId, studentFullName, code, title);
+                listOfRegisteredStudentJoinResults.add(registeredStudentJoinResultForCurrentRow);
+            }
+        }
+        catch (SQLException sqlException)
+        {
+            System.out.println("!!! SQLException: failed to query the registered_students table. Make sure you executed the schema.sql and seeds.sql scripts");
+            System.out.println(sqlException.getMessage());
+        }
 
-
-
+        return listOfRegisteredStudentJoinResults;
+    }
     public Class getClassWithId(int id)
     {
         String sql =
