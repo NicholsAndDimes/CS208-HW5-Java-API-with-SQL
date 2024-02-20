@@ -471,36 +471,40 @@ public class Database
         return listOfRegisteredStudentJoinResults;
     }
 
-    public ArrayList<RegisteredStudentJoinResult> registerStudent()
+    public ArrayList<RegisteredStudentJoinResult> registerStudent(int student_id, int class_id)
     {
         String sql =
-                "SELECT students.id, students.first_name || ' ' || students.last_name AS student_full_name, classes.code, classes.title\n" +
-                        "FROM students\n" +
-                        "INNER JOIN registered_students ON students.id = registered_students.student_id\n" +
-                        "INNER JOIN classes ON classes.id = registered_students.class_id\n" +
-                        "ORDER BY students.last_name, students.first_name, classes.code;";
+                "INSERT INTO registered_students(student_id, class_id)\n" +
+                "SELECT (SELECT id\n" +
+                "FROM students\n" +
+                "WHERE id = ?),\n" +
+                "(SELECT id\n" +
+                "FROM classes\n" +
+                "WHERE id = ?);";
 
         ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = new ArrayList<>();
         try
-                (
-                        Connection connection = getDatabaseConnection();
-                        Statement sqlStatement = connection.createStatement();
-                        ResultSet resultSet = sqlStatement.executeQuery(sql);
-                )
+        (
+            Connection connection = getDatabaseConnection();
+            PreparedStatement sqlStatement = connection.prepareStatement(sql);
+        )
         {
-            printTableHeader(new String[]{"students.id", "student_full_name", "classes.code", "classes.title"});
+            sqlStatement.setInt(1, student_id);
+            sqlStatement.setInt(2, class_id);
 
-            while (resultSet.next())
+            int numberOfRowsAffected = sqlStatement.executeUpdate();
+            System.out.println("numberOfRowsAffected = " + numberOfRowsAffected);
+
+            if (numberOfRowsAffected > 0)
             {
-                int studentId = resultSet.getInt("id");
-                String studentFullName = resultSet.getString("student_full_name");
-                String code = resultSet.getString("code");
-                String title = resultSet.getString("title");
+                System.out.println("SUCCESSFULLY enrolled the student with id = " + student_id);
+                System.out.println("into class with id = " + class_id);
 
-                System.out.printf("| %d | %s | %s | %s |%n", studentId, studentFullName, code, title);
-
-                RegisteredStudentJoinResult registeredStudentJoinResultForCurrentRow = new RegisteredStudentJoinResult(studentId, studentFullName, code, title);
-                listOfRegisteredStudentJoinResults.add(registeredStudentJoinResultForCurrentRow);
+            }
+            else
+            {
+                System.out.println("!!! WARNING: failed to enroll the student with id = " + student_id);
+                System.out.println("into class with id = " + class_id);
             }
         }
         catch (SQLException sqlException)
@@ -511,6 +515,7 @@ public class Database
 
         return listOfRegisteredStudentJoinResults;
     }
+
     public Class getClassWithId(int id)
     {
         String sql =

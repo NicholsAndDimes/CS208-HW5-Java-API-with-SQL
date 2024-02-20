@@ -43,32 +43,18 @@ public class RegisteredStudentsController
      * into the registered_students table in the database.
      */
     // TODO: implement this route
-    @PostMapping(value = "add_student_to_class")
-    RegisteredStudentJoinResult create(
-            @RequestParam("id") int studentId,
-            @RequestParam("full_name") String studentFullName,
-            @RequestParam("code") String code,
-            @RequestParam("title") String title
+   @PostMapping(value = "add_student_to_class")
+   ArrayList<RegisteredStudentJoinResult> registerStudent(
+           @RequestParam("studentId") int studentId,
+           @RequestParam("classId") int classId
     )
     {
-        System.out.println("id        = " + studentId);
-        System.out.println("full_name = " + studentFullName);
-        System.out.println("code      = " + code);
-        System.out.println("title     = " + title);
-        try
-        {
-            RegisteredStudentJoinResult enrolledStudent = new RegisteredStudentJoinResult(studentId, studentFullName, code, title);
-            Main.database.addNewClass(enrolledStudent);
-            return createdClass;
-        }
-        catch (SQLException e)
-        {
-            throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY, // 422 error code
-                    "failed to add new class to the database"
-            );
-        }
+        ArrayList<RegisteredStudentJoinResult> listOfRegisteredStudentJoinResults = Main.database.registerStudent(studentId, classId);
+        
+        return listOfRegisteredStudentJoinResults;
     }
+
+    
     /**
      * DELETE /drop_student_from_class
      * with the following form parameters:
