@@ -471,7 +471,7 @@ public class Database
         return listOfRegisteredStudentJoinResults;
     }
 
-    public void registerStudent(int student_id, int class_id)
+    public void registerStudent(int student_id, int class_id) throws SQLException
     {
         String sql =
                 "INSERT INTO registered_students(student_id, class_id)\n" +
@@ -509,6 +509,7 @@ public class Database
         {
             System.out.println("!!! SQLException: failed to query the registered_students table. Make sure you executed the schema.sql and seeds.sql scripts");
             System.out.println(sqlException.getMessage());
+            throw sqlException;
         }
     }
 
@@ -547,6 +548,7 @@ public class Database
         {
             System.out.println("!!! SQLException: failed to query the registered_students table. Make sure you executed the schema.sql and seeds.sql scripts");
             System.out.println(sqlException.getMessage());
+            throw sqlException;
         }
 
         return listOfRegisteredStudentJoinResults;
