@@ -81,9 +81,9 @@ public class StudentsController
     // TODO: implement this route
     @PostMapping("/students")
     Student create(
-        @RequestParam("first_name") String firstName,
-        @RequestParam("last_name") String lastName,
-        @RequestParam("birth_date") Date birthDate
+        @RequestParam("firstName") String firstName,
+        @RequestParam("lastName") String lastName,
+        @RequestParam("birthDate") Date birthDate
     )
     {
         System.out.println("first_name = " + firstName);
@@ -143,9 +143,9 @@ public class StudentsController
     @PutMapping(value = "/students/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     Student update(
             @PathVariable("id") int id,
-            @RequestParam("first_name") String firstName,
-            @RequestParam("last_name") String lastName,
-            @RequestParam("birth_date") Date birthDate
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("birthDate") Date birthDate
     )
     {
         System.out.println("id         = " + id);
